@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:p="http://www.springframework.org/schema/p"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd 
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
+	
+	<!-- 配置HandlerAdapter -->
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter"/>
+	<!-- 配置渲染器 -->
+	<bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	    <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+	    <!--  视图名称的前缀 -->
+	    <property name="prefix" value="/WEB-INF/jsp/"/>
+	    <!--  视图名称的后缀 -->
+	    <property name="suffix" value=".jsp"/>
+	</bean>
+	
+	
+	<context:component-scan base-package="cn.czg.controller"/>
+	<!-- 开启aop，对类代理 -->
+	<aop:config proxy-target-class="true"></aop:config>
+	
+	<!-- 开启shiro注解支持-->
+	<bean
+		class="
+		org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+		<property name="securityManager" ref="securityManager" />
+	</bean>
+	
+	<!-- 
+	判断抛出的异常，
+	如果是未授权异常，就跳到未授权页面
+	如果是未认证异常，跳转到登录页面
+	
+	 -->
+	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="org.apache.shiro.authz.UnauthorizedException">/refuse</prop>
+				<prop key="org.apache.shiro.authz.UnauthenticatedException">/login</prop>
+			</props>
+		</property>
+	</bean>
+</beans>
